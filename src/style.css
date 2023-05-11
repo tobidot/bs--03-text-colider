@@ -1,0 +1,43 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    --border: 2rem;
+    display: flex;
+    width: 100%;
+    min-height: 100dvh;
+    min-height: 100vh;
+    padding: var(--border);
+    margin: 0;
+
+    background: lightgray;
+
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+}
+
+#app {
+    display: flex;
+    max-width: calc(100vw - var(--border) * 2);
+    max-height: calc(100vh - var(--border) * 2);
+    width: min(100%, (100vh - var(--border) * 2)* 4 / 3);
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    background-color: #111;
+
+    outline: black 1px solid;
+}
+
+#app:focus {
+    outline: red 1px solid;
+}
+
+canvas {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}

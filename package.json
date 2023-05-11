@@ -1,0 +1,17 @@
+{
+  "name": "bs--03-text-colider",
+  "version": "0.0.1",
+  "author": "tobidot <Object.name@live.de>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite serve",
+    "preview": "vite preview",
+    "build": "node ./bin/incrementVersion.js && vite build"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^4.0.3",
+    "vite": "^4.3.4",
+    "vite-plugin-zip-pack": "^1.0.5"
+  }
+}
