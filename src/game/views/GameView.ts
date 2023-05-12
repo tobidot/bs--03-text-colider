@@ -26,6 +26,7 @@ export class GameView implements View {
         );
         this.context.fillStyle = "#fff";
         model.entities.forEach((entity) => {
+            this.context.fillStyle = entity.color;
             this.context.fillText(
                 entity.label,
                 entity.hitbox.center.x,

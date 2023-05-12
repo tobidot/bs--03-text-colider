@@ -17,8 +17,7 @@ export class GameController implements Controller, KeyboardController {
      * Start a new game
      */
     public newGame(): ControllerResponse {
-        this.model.entities = [];
-        this.model.current_text = "Press Enter";
+        this.model.restart();
         return null;
     }
 
