@@ -1,9 +1,9 @@
 import { Vector2D } from "../../library/math";
 import { Rect } from "../../library/math/Rect";
-import { AABBCollisionProxy } from "../../library/physics/AABBCollisionHandler";
-import { CollisionProxiable, CollisionProxy } from "../../library/physics/Physics";
+import { AABBCollisionProxy } from "../../library/physics/AABBPhysicsEngine";
+import { PhysicsProxiable, PhysicsProxy } from "../../library/physics/Physics";
 
-export class Entity implements CollisionProxiable {
+export class Entity implements PhysicsProxiable {
     public static next_id = 0;
     public id: number = Entity.next_id++;
     // 
@@ -12,6 +12,7 @@ export class Entity implements CollisionProxiable {
     public label: string = "";
     public reference: Entity;
     public color: string = "white";
+    public physics_id: number|null = null;
 
     constructor(
         position: Vector2D,
@@ -55,7 +56,7 @@ export class Entity implements CollisionProxiable {
      * 
      * @param other 
      */
-    public onCollision(other: CollisionProxy) {
+    public onCollision(other: PhysicsProxy) {
         // on collision 
         this.color = '#' + Math.floor(Math.random() * 0xffffff).toString(16);
     }   

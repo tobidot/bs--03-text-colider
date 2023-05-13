@@ -1,6 +1,6 @@
 import { Vector2D, Vector2DLike } from "../math";
 import { BoundingBox, Rect } from "../math/Rect";
-import { Collision, CollisionProxiable, CollisionProxy } from "./Physics";
+import { Collision, PhysicsProxiable, PhysicsProxy, PhysicsEngine } from "./Physics";
 
 /**
  * Handles collisions between Axis-Aligned Bounding Boxes (AABBs) that are moving.
@@ -12,13 +12,12 @@ import { Collision, CollisionProxiable, CollisionProxy } from "./Physics";
  * 
  * @module Physics
  */
-export class AABBCollisionHandler {
-    public collisions = new Array<Collision>(); 
-    public proxies: AABBCollisionProxyInterface[] = [];
+export class AABBPhysicsEngine extends PhysicsEngine<AABBCollisionProxy> {
 
     constructor(
         public world_box: Rect,
     ) {
+        super();
     }
 
     /**
@@ -31,7 +30,7 @@ export class AABBCollisionHandler {
         this.proxies.forEach(proxy => {
             proxy.outerBox.move(proxy.velocity.cpy().mul(delta_seconds));
         });
-        this.handleCollisions();
+        this.checkCollisions();
         this.handleWorldCollisions();
     }
 
@@ -58,25 +57,42 @@ export class AABBCollisionHandler {
     /**
      * Handles collisions between the AABBs.
      */
-    public handleCollisions() {
+    public checkCollisions() {
         this.collisions = [];
         this.proxies.forEach(proxy => {
             this.proxies.forEach(other => {
+                // don't collide with yourself
                 if (proxy === other) return;
+                // get overlapping rectangle between the two boxes
                 const overlap = proxy.outerBox.overlap(other.outerBox);
+                // if the overlap is a "real" rectangle, then there is a collision
                 if (overlap.bottom > overlap.top && overlap.right > overlap.left) {
-                    const collision : AABBCollision = {
-                        overlap: overlap,
-                        a: proxy,
-                        b: other,
-                    }
-                    this.solveCollision(collision);
-                    proxy.onCollision(other, collision);
-                    other.onCollision(proxy, collision);    
-                    this.collisions.push(collision);
+                    this.handleCollision(proxy, other, overlap);
                 }
             });
         });
+    }
+
+    /**
+     * A collision happened, solve it and call the onCollision callback for each box.
+     * @param proxy 
+     * @param other 
+     * @param overlap 
+     */
+    public handleCollision(proxy: AABBCollisionProxy, other: AABBCollisionProxy, overlap: BoundingBox) {
+        // create a collision object
+        const collision : AABBCollision = {
+            overlap: overlap,
+            a: proxy,
+            b: other,
+        }
+        // solve the collision on physics side
+        this.solveCollision(collision);
+        // call the onCollision callback for each box
+        proxy.onCollision(other, collision);
+        other.onCollision(proxy, collision);    
+        // add the collision to the list of collisions
+        this.collisions.push(collision);
     }
 
     /**
@@ -105,45 +121,25 @@ export class AABBCollisionHandler {
         }
     }
 
-    public add(proxy: AABBCollisionProxyInterface) {
-        this.proxies.push(proxy);
-    }
-
-    public remove(proxy: AABBCollisionProxyInterface) {
-        this.proxies = this.proxies.filter(p => p.id !== proxy.id);
-    }
 }
 
 /**
  * Represents a collision between two moving Axis-Aligned Bounding Boxes (AABBs).
  */
 export interface AABBCollision extends Collision {
-    a: AABBCollisionProxyInterface;
-    b: AABBCollisionProxyInterface;
+    a: AABBCollisionProxy;
+    b: AABBCollisionProxy;
 }
-
-
-/**
- * Minimal interface to serve as an entity inside the Physics engine.
- */
-export interface AABBCollisionProxyInterface extends CollisionProxy {
-    id: number;
-    outerBox: Rect;
-    velocity: Vector2D;
-    onCollision: (other: CollisionProxy, collision: Collision) => void;
-}
-
 
 /**
  * Represents an entity with an Axis-Aligned Bounding Box (AABB) that is moving.
  */
-export class AABBCollisionProxy extends CollisionProxy implements AABBCollisionProxyInterface {
+export class AABBCollisionProxy extends PhysicsProxy {
     constructor(
-        id: number,
         outerBox: Rect,
         public velocity: Vector2D,
-        reference: CollisionProxiable,
+        reference: PhysicsProxiable,
     ) {
-        super(id, outerBox, reference);
+        super( outerBox, reference);
     }
 }

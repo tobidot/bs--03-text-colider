@@ -1,9 +1,9 @@
 import { Rect } from "../../library/math/Rect";
-import { AABBCollisionProxy, AABBCollisionHandler } from "../../library/physics/AABBCollisionHandler";
+import { AABBCollisionProxy, AABBPhysicsEngine } from "../../library/physics/AABBPhysicsEngine";
 import { Entity } from "./Entity";
 
 export class GameModel {
-    public physics: AABBCollisionHandler;
+    public physics: AABBPhysicsEngine;
     public entities: Entity[] = [];
     public current_text: string = "";
     public debug: boolean = false;
@@ -12,14 +12,14 @@ export class GameModel {
         public context: CanvasRenderingContext2D,
     ) {
         const screen_box = new Rect(0, 0, context.canvas.width, context.canvas.height);
-        this.physics = new AABBCollisionHandler(screen_box);
+        this.physics = new AABBPhysicsEngine(screen_box);
     }
 
     /**
      * Reset the game
      */
     public restart() {
-        this.physics = new AABBCollisionHandler(this.physics.world_box);
+        this.physics = new AABBPhysicsEngine(this.physics.world_box);
         this.entities = [];
         this.current_text = "Press Enter";
         this.debug = false;
@@ -49,12 +49,11 @@ export class GameModel {
             label, 
             this.context
         ));
-        this.physics.add(new AABBCollisionProxy(
-            entity.id,
+        entity.physics_id = this.physics.add(new AABBCollisionProxy(
             entity.hitbox,
             entity.velocity,
             entity,
-        ));
+        )).id;
         return entity;
     }
 }

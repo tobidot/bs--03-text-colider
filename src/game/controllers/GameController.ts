@@ -50,6 +50,9 @@ export class GameController implements Controller, KeyboardController {
                     if (entity.label.length == 1) {
                         return sum.concat(entity);
                     }
+                    if (entity.physics_id !== null)  {
+                        this.model.physics.remove(entity.physics_id);
+                    }
                     return sum.concat(
                         entity.label.split("").map(
                             (char: string, index: number) => {
